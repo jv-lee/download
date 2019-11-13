@@ -18,7 +18,7 @@ import retrofit2.http.Url;
 public class DownloadRetrofit {
 
     private static DownloadRetrofit instance;
-    private Api api;
+    private static Api api;
 
     public synchronized static DownloadRetrofit getInstance() {
         if (instance == null) {
@@ -27,7 +27,7 @@ public class DownloadRetrofit {
         return instance;
     }
 
-    private DownloadRetrofit() {
+    static {
         OkHttpClient client = new OkHttpClient.Builder()
                 .connectTimeout(30, TimeUnit.SECONDS)
                 .writeTimeout(30, TimeUnit.SECONDS)
@@ -35,11 +35,12 @@ public class DownloadRetrofit {
                 .build();
 
         Retrofit retrofit = new Retrofit.Builder().client(client)
-//                .addConverterFactory(GsonConverterFactory.create())
-//                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                 .baseUrl("http://www.baidu.com")
                 .build();
         api = retrofit.create(Api.class);
+    }
+
+    private DownloadRetrofit() {
     }
 
     public Api getApi() {
