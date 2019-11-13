@@ -1,6 +1,9 @@
 package com.lee.download.core;
 
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.lee.download.listener.DownloadListener;
 import com.lee.download.server.DownloadRetrofit;
@@ -29,22 +32,27 @@ public class DownloadCore {
 
     private DownloadRequest request;
     private DownloadListener downloadListener;
+    private Handler handler;
+    private long currentSize = 0;
 
     public DownloadCore(DownloadRequest request, DownloadListener downloadListener) {
         this.request = request;
         this.downloadListener = downloadListener;
+        handler = new Handler(Looper.getMainLooper());
     }
 
     /**
      * 下载apk
      */
     public void downloadFile() {
+        Log.i(TAG, "downloadFile method start .");
         DownloadRetrofit.getInstance()
                 .getApi()
                 .downloadFile(request.getUrl())
                 .enqueue(new Callback<ResponseBody>() {
                     @Override
                     public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                        Log.i(TAG, "download onResponse");
                         if (response.isSuccessful()) {
                             ThreadUtil.getInstance().addTask(new FileDownloadRun(response));
                         } else {
@@ -79,7 +87,12 @@ public class DownloadCore {
      */
     private void writeResponseBodyToDisk(ResponseBody body) {
         if (downloadListener != null) {
-            downloadListener.onStart();
+            handler.post(new Runnable() {
+                @Override
+                public void run() {
+                    downloadListener.onStart();
+                }
+            });
         }
         try {
             // 改成自己需要的存储位置
@@ -87,7 +100,7 @@ public class DownloadCore {
             if (!dir.exists()) {
                 boolean mkdir = dir.mkdir();
             }
-            File file = new File(dir, request.getFileName() + request.getFileType());
+            final File file = new File(dir, request.getFileName() + request.getFileType());
             Log.e(TAG, "writeResponseBodyToDisk() file=" + file.getPath());
             if (file.exists()) {
                 file.delete();
@@ -98,7 +111,7 @@ public class DownloadCore {
             try {
                 byte[] fileReader = new byte[4096];
 
-                long fileSize = body.contentLength();
+                final long fileSize = body.contentLength();
                 long fileSizeDownloaded = 0;
 
                 inputStream = body.byteStream();
@@ -117,19 +130,41 @@ public class DownloadCore {
 
                     //计算当前下载百分比，并经由回调传出
                     if (downloadListener != null) {
-                        downloadListener.onProgress((int) (100 * fileSizeDownloaded / fileSize));
+                        final long currentProgress = (int) (100 * fileSizeDownloaded / fileSize);
+                        if (currentSize == currentProgress) {
+                            continue;
+                        } else {
+                            currentSize = currentProgress;
+                        }
+                        handler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                downloadListener.onProgress((int) currentProgress);
+                            }
+                        });
+
                     }
                     Log.d(TAG, "file download: " + fileSizeDownloaded + " of " + fileSize);
                 }
 
                 if (downloadListener != null) {
-                    downloadListener.onFinish(file.getPath());
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            downloadListener.onFinish(file.getPath());
+                        }
+                    });
                 }
                 outputStream.flush();
 
-            } catch (IOException e) {
+            } catch (final IOException e) {
                 if (downloadListener != null) {
-                    downloadListener.onError(e.getMessage());
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            downloadListener.onError(e.getMessage());
+                        }
+                    });
                 }
             } finally {
                 if (inputStream != null) {
@@ -140,9 +175,14 @@ public class DownloadCore {
                     outputStream.close();
                 }
             }
-        } catch (IOException e) {
+        } catch (final IOException e) {
             if (downloadListener != null) {
-                downloadListener.onError(e.getMessage());
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        downloadListener.onError(e.getMessage());
+                    }
+                });
             }
         }
     }
