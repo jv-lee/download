@@ -86,7 +86,9 @@ public class AndroidDownloadManager {
         context.registerReceiver(receiver, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
     }
 
-    //广播监听下载的各个状态
+    /**
+     * 广播监听下载的各个状态
+     */
     private BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -144,4 +146,11 @@ public class AndroidDownloadManager {
         return filename;
     }
 
+    public long getDownloadId() {
+        return downloadId;
+    }
+
+    public String getPath() {
+        return path;
+    }
 }
