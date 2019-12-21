@@ -10,6 +10,7 @@ import android.net.Uri;
 import android.os.Environment;
 
 import com.lee.download.listener.DownloadListener;
+import com.lee.download.request.DownloadRequest;
 
 import java.io.File;
 
@@ -63,6 +64,9 @@ public class AndroidDownloadManager {
         request.setTitle(title);
         request.setDescription(description);
         request.setVisibleInDownloadsUi(true);
+        if (name.indexOf(DownloadRequest.TYPE_APK) > 0) {
+            request.setMimeType("application/vnd.android.package-archive");
+        }
 
         //设置下载的路径
         File file = new File(context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS), name);

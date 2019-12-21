@@ -83,11 +83,12 @@ public class MainActivity extends AppCompatActivity {
     public void androidDownload() {
         DownloadRequest request = DownloadRequest.create(this)
                 .isAndroid(true)
-                .setNotificationTitle("应用下载")
-                .setNotificationDescription("正在下载最新的应用")
-                .setFileName("app")
+                .setNotificationTitle("testapk1")
+                .setNotificationDescription("test")
+                .setFileName("testapk1")
                 .setFileType(DownloadRequest.TYPE_APK)
-                .setUrl("http://3g.163.com/links/4636")
+//                .setUrl("http://3g.163.com/links/4636")
+                .setUrl("http://39.108.172.174:8284/iDana_com.ididid2.yo924_1.1.8_118_20190924_release.apk")
                 .build();
 
         DownloadManager.download(request, new DownloadListener() {
@@ -105,6 +106,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onFinish(String path) {
                 Toast.makeText(MainActivity.this, "下载完毕:" + path, Toast.LENGTH_SHORT).show();
+                Log.i(TAG, "onFinish: "+path);
             }
 
             @Override
