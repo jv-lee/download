@@ -1,5 +1,6 @@
 package com.lee.download.core;
 
+import android.content.BroadcastReceiver;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
@@ -30,6 +31,8 @@ public class DownloadCore {
 
     private static final String TAG = "DownloadCore";
 
+    private AndroidDownloadManager androidDownloadManager;
+
     private DownloadRequest request;
     private DownloadListener downloadListener;
     private Handler handler;
@@ -53,8 +56,12 @@ public class DownloadCore {
         }
     }
 
+    public BroadcastReceiver getRecevier(){
+        return androidDownloadManager.getReceiver();
+    }
+
     private void androidDownload() {
-        new AndroidDownloadManager(request.getContext(), request.getUrl(), request.getFileName() + request.getFileType(), request.getTitle(), request.getDescription())
+        androidDownloadManager = new AndroidDownloadManager(request.getContext(), request.getUrl(), request.getFileName() + request.getFileType(), request.getTitle(), request.getDescription())
                 .setListener(downloadListener)
                 .download();
     }

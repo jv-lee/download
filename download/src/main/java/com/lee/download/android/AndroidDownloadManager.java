@@ -54,7 +54,7 @@ public class AndroidDownloadManager {
     /**
      * 开始下载
      */
-    public void download() {
+    public AndroidDownloadManager download() {
         DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
         //移动网络情况下是否允许漫游
         request.setAllowedOverRoaming(false);
@@ -86,6 +86,11 @@ public class AndroidDownloadManager {
 
         //注册广播接收者，监听下载状态
         context.registerReceiver(receiver, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
+        return this;
+    }
+
+    public BroadcastReceiver getReceiver() {
+        return receiver;
     }
 
     /**
@@ -117,7 +122,7 @@ public class AndroidDownloadManager {
                             listener.onFinish(path);
                         }
                         cursor.close();
-                        context.unregisterReceiver(receiver);
+                        context.unregisterReceiver(this);
                         break;
                     //下载失败
                     case DownloadManager.STATUS_FAILED:
@@ -125,7 +130,7 @@ public class AndroidDownloadManager {
                             listener.onError("下载失败");
                         }
                         cursor.close();
-                        context.unregisterReceiver(receiver);
+                        context.unregisterReceiver(this);
                         break;
                     default:
                 }
