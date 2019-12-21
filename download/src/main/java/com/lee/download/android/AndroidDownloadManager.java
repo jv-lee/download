@@ -9,6 +9,8 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Environment;
 
+import com.lee.download.listener.DownloadListener;
+
 import java.io.File;
 
 /**
@@ -27,7 +29,7 @@ public class AndroidDownloadManager {
 
     private String path;
 
-    private AndroidDownloadManagerListener listener;
+    private DownloadListener listener;
 
     /**
      * @param context     上下文
@@ -44,7 +46,7 @@ public class AndroidDownloadManager {
         this.description = description;
     }
 
-    public AndroidDownloadManager setListener(AndroidDownloadManagerListener listener) {
+    public AndroidDownloadManager setListener(DownloadListener listener) {
         this.listener = listener;
         return this;
     }
@@ -77,7 +79,7 @@ public class AndroidDownloadManager {
         //将下载请求加入下载队列，加入下载队列后会给该任务返回一个long型的id，通过该id可以取消任务，重启任务、获取下载的文件等等
         if (downloadManager != null) {
             if (listener != null) {
-                listener.onPrepare();
+                listener.onStart();
             }
             downloadId = downloadManager.enqueue(request);
         }
@@ -112,7 +114,7 @@ public class AndroidDownloadManager {
                     //下载完成
                     case DownloadManager.STATUS_SUCCESSFUL:
                         if (listener != null) {
-                            listener.onSuccess(path);
+                            listener.onFinish(path);
                         }
                         cursor.close();
                         context.unregisterReceiver(receiver);
@@ -120,7 +122,7 @@ public class AndroidDownloadManager {
                     //下载失败
                     case DownloadManager.STATUS_FAILED:
                         if (listener != null) {
-                            listener.onFailed(new Exception("下载失败"));
+                            listener.onError("下载失败");
                         }
                         cursor.close();
                         context.unregisterReceiver(receiver);

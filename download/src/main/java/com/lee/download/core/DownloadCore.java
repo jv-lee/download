@@ -3,11 +3,11 @@ package com.lee.download.core;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
-import android.widget.Toast;
 
+import com.lee.download.android.AndroidDownloadManager;
 import com.lee.download.listener.DownloadListener;
-import com.lee.download.server.DownloadRetrofit;
 import com.lee.download.request.DownloadRequest;
+import com.lee.download.server.DownloadRetrofit;
 import com.lee.download.utils.ThreadUtil;
 
 import java.io.File;
@@ -46,6 +46,20 @@ public class DownloadCore {
      */
     public void downloadFile() {
         Log.i(TAG, "downloadFile method start .");
+        if (request.isAndroid()) {
+            androidDownload();
+        } else {
+            clientDownload();
+        }
+    }
+
+    private void androidDownload() {
+        new AndroidDownloadManager(request.getContext(), request.getUrl(), request.getFileName() + request.getFileType(), request.getTitle(), request.getDescription())
+                .setListener(downloadListener)
+                .download();
+    }
+
+    private void clientDownload() {
         DownloadRetrofit.getInstance()
                 .getApi()
                 .downloadFile(request.getUrl())

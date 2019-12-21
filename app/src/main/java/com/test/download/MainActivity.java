@@ -34,14 +34,20 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.btn).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                requestPermission();
+                download();
+            }
+        });
+        findViewById(R.id.btn_android).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                androidDownload();
             }
         });
     }
 
     @Permission(value = {Manifest.permission.WRITE_EXTERNAL_STORAGE}, requestCode = 200)
-    public void requestPermission() {
-        DownloadRequest request = DownloadRequest.create()
+    public void download() {
+        DownloadRequest request = DownloadRequest.create(this)
                 .setFileName("app")
                 .setFileType(DownloadRequest.TYPE_APK)
                 .setFilePath(getFilesDir() + File.separator + "apk")
@@ -71,6 +77,41 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+    }
+
+    @Permission(value = Manifest.permission.WRITE_EXTERNAL_STORAGE, requestCode = 201)
+    public void androidDownload() {
+        DownloadRequest request = DownloadRequest.create(this)
+                .isAndroid(true)
+                .setNotificationTitle("应用下载")
+                .setNotificationDescription("正在下载最新的应用")
+                .setFileName("app")
+                .setFileType(DownloadRequest.TYPE_APK)
+                .setUrl("http://3g.163.com/links/4636")
+                .build();
+
+        DownloadManager.download(request, new DownloadListener() {
+            @Override
+            public void onStart() {
+                Toast.makeText(MainActivity.this, "开始下载", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onProgress(int p) {
+                Log.i(TAG, "onProgress: " + p);
+                progress.setProgress(p);
+            }
+
+            @Override
+            public void onFinish(String path) {
+                Toast.makeText(MainActivity.this, "下载完毕:" + path, Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onError(String msg) {
+                Toast.makeText(MainActivity.this, "下载失败:" + msg, Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     @PermissionDenied
