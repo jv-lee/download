@@ -16,6 +16,7 @@ public class DownloadRequest {
     public static final String TYPE_MP4 = ".mp4";
     public static final String TYPE_MP3 = ".mp3";
     public static final String TYPE_WAV = ".wav";
+    public static final String TYPE_PDF = ".pdf";
 
     private final Context context;
     private final String url;
@@ -63,13 +64,14 @@ public class DownloadRequest {
         private String url;
         private String fileName = String.valueOf(System.currentTimeMillis());
         private String fileType;
-        private String filePath = Environment.getExternalStorageDirectory().getAbsolutePath();
+        private String filePath;
         private boolean isAndroid = false;
         private String title;
         private String description;
 
         public Builder(Context context) {
             this.context = context;
+            this.filePath = context.getFilesDir().getAbsolutePath();
         }
 
         public Builder isAndroid(boolean isAndroid) {
