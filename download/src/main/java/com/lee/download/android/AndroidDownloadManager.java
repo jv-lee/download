@@ -131,7 +131,7 @@ public class AndroidDownloadManager {
                     //下载失败
                     case DownloadManager.STATUS_FAILED:
                         if (listener != null) {
-                            listener.onError("下载失败");
+                            listener.onError("Download Error ...");
                         }
                         cursor.close();
                         context.unregisterReceiver(this);

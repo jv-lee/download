@@ -116,9 +116,9 @@ public class DownloadRequest {
 
     private DownloadRequest(Builder builder) {
         if (builder.url == null) {
-            throw new IllegalArgumentException("DownloadRequest url 参数为必填值");
+            throw new IllegalArgumentException("DownloadRequest url params is not null.");
         } else if (builder.fileType == null) {
-            throw new IllegalArgumentException("DownloadRequest fileType 参数为必填值");
+            throw new IllegalArgumentException("DownloadRequest fileType params is not null.");
         }
         this.context = builder.context;
         this.isAndroid = builder.isAndroid;
